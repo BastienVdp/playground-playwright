@@ -13,18 +13,28 @@ const setup = (url, options = {}) => {
   return query;
 };
 
-const run = () => {
-  fetch(
-    setup("https://www.ifapme.be/", {
-      category: "accessibility",
-    })
-  )
+const audit = async (url, options) => {
+  return fetch(url, (options = {}))
     .then((response) => response.json())
     .then((data) => {
+      if (options.category === "accessibility")
+        console.log("Accessibility audit: ");
+      if (options.category === "performance")
+        console.log("Performance audit: ");
       Object.values(data.lighthouseResult.audits).forEach(
         (audit) => audit.score !== null && audit.score < 1 && console.log(audit)
       );
     });
 };
 
-run();
+const run = (url) => {
+  audit(setup(url), {
+    category: "accessibility",
+  });
+
+  audit(setup(url), {
+    category: "performance",
+  });
+};
+
+run("https://www.mediakod.com");
