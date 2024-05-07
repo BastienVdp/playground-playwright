@@ -5,9 +5,11 @@ const setup = (url, options = {}) => {
     ...options,
   };
   let query = `${api}?`;
-  for (key in parameters) {
-    query += `&${key}=${parameters[key]}`;
-  }
+  Object.entries(parameters).forEach(([key, value], index) => {
+    if (index === 0) query += `${key}=${value}`;
+    else query += `&${key}=${value}`;
+  });
+
   return query;
 };
 
