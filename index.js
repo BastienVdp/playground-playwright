@@ -1,7 +1,8 @@
 const puppeteer = require("puppeteer");
 
 const url = "https://www.mediakod.com";
-const visitedLinks = new Set();
+const links = new Set();
+const visitedLinks = [];
 
 // Script
 (async () => {
@@ -20,19 +21,26 @@ const visitedLinks = new Set();
 })();
 
 /**
- * Visits the given URL and gets all internal links
+ * Visits the given URL and gets all internal links with the status code
  * @param Puppeteer browser
  * @param {String} url
  */
 const exploreLinks = async (browser, url) => {
   const page = await browser.newPage();
-  await page.goto(url, { waitUntil: "domcontentloaded" });
 
-  const links = await getInternalLinks(page, url);
+  const [response] = await Promise.all([
+    page.waitForNavigation(),
+    page.goto(url, { waitUntil: "domcontentloaded" }),
+  ]);
 
-  for (const link of links) {
-    if (!visitedLinks.has(link)) {
-      visitedLinks.add(link);
+  visitedLinks.push({
+    url: response.url(),
+    status: response.status(),
+  });
+
+  for (const link of await getInternalLinks(page, url)) {
+    if (!links.has(link)) {
+      links.add(link);
       await exploreLinks(browser, link);
     }
   }
@@ -49,11 +57,11 @@ const exploreLinks = async (browser, url) => {
 const getInternalLinks = async (page, domainUrl) => {
   const _internalLinks = [];
 
-  const links = await page.$$eval("a", (links) =>
+  const _links = await page.$$eval("a", (links) =>
     links.map((link) => link.href)
   );
 
-  links.forEach((link) => {
+  _links.forEach((link) => {
     if (checkIfInternalLink(link, domainUrl)) {
       _internalLinks.push(link);
     }
