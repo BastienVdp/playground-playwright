@@ -14,12 +14,18 @@ const setup = (url, options = {}) => {
 };
 
 const audit = async (url, options) => {
-  return fetch(url, (options = {}))
+  return fetch(setup(url, options))
     .then((response) => response.json())
     .then((data) => {
-      if (options.category === "accessibility")
+      if (
+        options.category === "accessibility" &&
+        data.lighthouseResult.categories.accessibility.score < 1
+      )
         console.log("Accessibility audit: ");
-      if (options.category === "performance")
+      if (
+        options.category === "performance" &&
+        data.lighthouseResult.categories.performance.score < 1
+      )
         console.log("Performance audit: ");
       Object.values(data.lighthouseResult.audits).forEach(
         (audit) => audit.score !== null && audit.score < 1 && console.log(audit)
@@ -28,13 +34,15 @@ const audit = async (url, options) => {
 };
 
 const run = (url) => {
-  audit(setup(url), {
+  audit(url, {
     category: "accessibility",
   });
 
-  audit(setup(url), {
+  audit(url, {
     category: "performance",
   });
 };
 
-run("https://www.mediakod.com");
+run(
+  "https://www.ifapme.be/formations/coordination-et-encadrement/developpeur-web-front-end-hfx"
+);
