@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 
-const url = "https://www.mediakod.com";
+const url = "https://www.so-romantic.com/";
 const links = new Set();
 const visitedLinks = [];
 
@@ -77,7 +77,13 @@ const getInternalLinks = async (page, domainUrl) => {
  * @returns {Boolean} - True if the link is an internal link, otherwise false
  */
 const checkIfInternalLink = (link, domainUrl) => {
-  if (link.startsWith(domainUrl) && !link.includes("#")) {
+  if (
+    link.startsWith(domainUrl) &&
+    !link.includes("#") &&
+    !link.includes("?") &&
+    !link.includes("mailto") &&
+    !link.includes("tel")
+  ) {
     return true;
   }
 };
